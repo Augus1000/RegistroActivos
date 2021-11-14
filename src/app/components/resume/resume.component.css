@@ -1,0 +1,59 @@
+#resume .date-actions{
+  background: rgb(3,51,200);
+background: linear-gradient(90deg, rgba(3,51,200,1) 0%, rgba(48,118,232,1) 38%, rgba(0,212,255,1) 100%);
+    padding: 15px;
+    color: #f0e6e6
+}
+#resume .date-actions i{
+    cursor: pointer;
+    margin-left: 10px;
+    font-size: 25px;
+
+
+background: #003e81;
+}
+background-image{
+  opacity: .5;
+}
+#resume .date-actions i:hover{
+  background: #003e81;
+}
+#resume .title-field{
+    color:#003e81;
+    font-family: Arial;
+    font-weight: bold;
+
+}
+#resume .ng-star-inserted{
+  color:#000000;
+  font-family: Arial;
+  font-weight: bold;
+}
+
+#resume .header{
+  color:#000000;
+}
+.body{
+  color:#534d4d;
+}
+
+#resume .registry .rounded-left{
+    border-top-left-radius: 0px !important;
+}
+
+
+
+#resume .registry .rounded-right{
+    border-top-right-radius: 0px !important;
+}
+
+#resume .total{
+    text-align: center;
+    border-radius: 4px;
+    font-size: 36px;
+    padding: 8px;
+color:#848080
+}
+.myOwnBg {
+  background-color: rgb(255, 255, 255);
+}

@@ -1,0 +1,78 @@
+<div class="row" id="header">
+  <div class="col-12">
+
+    <!-- Nombre de la app -->
+    <div class="row">
+      <div class="col-12 text-center text-light mt-4 mb-4">
+
+        <h1 style="color: #ffffff; font-family: Arial; font-weight: bold; font-size: 40px;">{{'label.name.app' | translate}}</h1>
+
+      </div>
+      <div class="brand_logo_container">
+        <img width="75" [src]="config.logoLogin" class="brand_logo" alt="Logo" />
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-12">
+
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-sm navbar-light">
+          <button class="navbar-toggler d-lg-none" type="button" data-toggle="collapse" data-target="#collapsibleNavId"
+            aria-controls="collapsibleNavId" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="collapsibleNavId">
+            <ul class="navbar-nav m-auto mt-2 mt-lg-0">
+              <!-- Link Resume -->
+              <li class="nav-item" [routerLink]="['/resume']" routerLinkActive="router-link-active">
+                <a class="nav-link" style="color: #fffdfd;font-family: Arial; font-size: 17px;">{{'label.resume' | translate}} </a>
+              </li>
+
+
+
+              <li class="nav-item"  (click)="openDetail('')">
+                <a  class="nav-link" style="color:  #fffdfd;font-family: Arial; font-size: 17px;">{{'label.add.asset' | translate}} </a>
+              </li>
+              <style>
+                @media print{
+                  /* Hide every other element */
+                  body *{
+                    visibility: hidden;
+                  }
+                  /*then displaying print container elements*/
+                  .print-container, .print-container *{
+                    visibility: visible;
+                  }
+                }
+                </style>
+               <li class="nav-item" onclick="window.print();">
+                <a class="nav-link" style="color:  #fffdfd;font-family: Arial; font-size: 17px;">{{'label.printData' | translate}}</a>
+              </li>
+              <!-- Link graficos -->
+              <li class="nav-item" [routerLink]="['/graphics']" routerLinkActive="router-link-active">
+                <a class="nav-link" style="color:  #fffdfd;font-family: Arial; font-size: 17px;">{{'label.graphics' | translate}}</a>
+              </li>
+
+
+              <!-- Logout -->
+              <li class="nav-item" (click)="logout()">
+                <a class="nav-link" style="color:  #fffdfd;font-family: Arial; font-size: 17px;">{{'label.logout' | translate}}</a>
+              </li>
+            </ul>
+          </div>
+        </nav>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Detalle para añadir un registro -->
+<app-add-registry *ngIf="showDetail"
+  [typeRegistry]="typeRegistry"
+  [registrySelected]="registrySelected"
+  [listRegistries]="listRegistries"
+  (close)="closeDetail($event)">
+</app-add-registry>

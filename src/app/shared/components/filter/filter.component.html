@@ -1,0 +1,103 @@
+<form>
+  <div class="row form-group">
+
+    <!-- Select de años -->
+    <div class="col-lg-4 col-md-3 col-12" *ngIf="showYears">
+      <label for="assettype" style="font-family: Arial; font-size: 16px; font-weight: bold; color: #000000">{{'label.year' | translate}}</label>
+      <select
+        class="custom-select"
+        name="year"
+        id="year"
+        [(ngModel)]="filterForm.year"
+        (change)="filterData()">
+        <option value="{{year}}" *ngFor="let year of years">{{year}}</option>
+      </select>
+    </div>
+
+     <div class="col-lg-2 col-md-3 col-12 align-self-end" *ngIf="showDateStartEnd"  style="position:center; left:-1px; top:2px;">
+      <div class="col-lg-12 col-md-10 col-12 align-self-end" style="position:center; left:90px; top:2px; ">
+        <label style="white-space: pre;font-family: Arial; font-size: 16px; font-weight: bold; color: #000000">Busqueda por fechas</label>
+      </div>
+      <label for="dateStart" style="font-family: Arial; font-size: 16px; color: #000000" >{{'label.date.start' | translate}}</label>
+      <p-calendar
+        showButtonBar="true"
+        dateFormat="dd/mm/yy"
+        inputStyleClass="form-control"
+        name="dateStart"
+        id="dateStart"
+        [locale]="locale"
+        [readonlyInput]="false"
+        [(ngModel)]="filterForm.dateStart"
+        (onSelect)="filterData()"
+        (onTodayClick)="filterData()"
+        (onClearClick)="filterData()">
+      </p-calendar>
+    </div>
+
+    <!-- Fecha de fin -->
+     <div class="col-lg-2 col-md-3 col-12 align-self-end" *ngIf="showDateStartEnd"   style="position:center; left:-1px; top:2px;">
+      <label for="dateEnd" style="font-family: Arial; font-size: 16px; color: #000000">{{'label.date.end' | translate}}</label>
+      <p-calendar
+        showButtonBar="true"
+        dateFormat="dd/mm/yy"
+        inputStyleClass="form-control"
+        name="dateEnd"
+        id="dateEnd"
+        [locale]="locale"
+        [readonlyInput]="false"
+        [(ngModel)]="filterForm.dateEnd"
+        (onSelect)="filterData()"
+        (onTodayClick)="filterData()"
+        (onClearClick)="filterData()">
+      </p-calendar>
+    </div>
+
+
+ <div class="col-lg-2 col-12 align-self-end"  *ngIf="!showYears" [ngClass]="{'col-md-3': showYears, 'col-md-2': !showYears}"  style="position:center; left:-1px; top:2px;">
+  <div class="col-lg-14 col-md-10 col-12 align-self-end" style="position:center; left:80px; top:2px; color: #000000">
+    <label style="white-space: pre;font-family: Arial; font-size: 16px; font-weight: bold;">Busqueda por precios</label>
+  </div>
+  <label for="priceMin" style="font-family: Arial; font-size: 16px; color: #000000">{{'label.price.min' | translate}}</label>
+  <input type="text"
+  class="form-control"
+  style="background-color:  rgb(232, 247, 253)"
+    name="priceMin"
+    id="priceMin"
+    (keyup)="filterData()"
+    [(ngModel)]="filterForm.priceMin">
+</div>
+
+<!-- Cantidad Maxima -->
+<div class="col-lg-2 col-12 align-self-end" *ngIf="!showYears" [ngClass]="{'col-md-3': showYears, 'col-md-2': !showYears}"  style="position:center; left:-1px; top:2px;">
+  <label for="priceMax" style="font-family: Arial; font-size: 16px; color: #000000">{{'label.price.max' | translate}}</label>
+  <input type="text"
+  class="form-control"
+  style="background-color: rgb(232, 247, 253)"
+    name="priceMax"
+    id="priceMax"
+    (keyup)="filterData()"
+    [(ngModel)]="filterForm.priceMax">
+</div>
+<div class="col-lg-2 col-12 align-self-end" *ngIf="!showYears" [ngClass]="{'col-md-3': showYears, 'col-md-2': !showYears}"  style="position:center; left:-1px; top:2px;">
+  <label for="agencia" style="font-family: Arial; font-size: 16px; color: #000000">Agencia</label>
+  <input type="text"
+  class="form-control"
+  style="background-color:  rgb(232, 247, 253)"
+    name="agencia"
+    id="agencia"
+    (keyup)="filterData()"
+    [(ngModel)]="filterReg.agencia">
+</div>
+<div class="col-lg-2 col-12 align-self-end" *ngIf="!showYears" [ngClass]="{'col-md-3': showYears, 'col-md-2': !showYears}"  style="position:center; left:-1px; top:2px;">
+  <label for="asset" style="font-family: Arial; font-size: 16px; color: #000000">Tipo de activo</label>
+  <input type="text"
+  class="form-control"
+  style="background-color:  rgb(232, 247, 253)"
+    name="idActivofijo"
+    id="asset"
+    (keyup)="filterData()"
+    [(ngModel)]="filterReg.idActivofijo">
+</div>
+  </div>
+
+</form>

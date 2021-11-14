@@ -1,0 +1,22 @@
+.detail-content{
+  display:flex;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  font-style: italic;
+  color: #534d4d
+}
+.showingData{
+  display:none;
+}
+#detail[_ngcontent-giw-c168] .close[_ngcontent-giw-c168]{
+  color:#3076e8
+}
+:host zxing-scanner::ng-deep video {
+  max-height: 50vh;
+  object-fit: contain;
+}
+:host zxing-scanner::ng-deep {
+  border-style: solid;
+  border-color: #5d78ff;
+}
+

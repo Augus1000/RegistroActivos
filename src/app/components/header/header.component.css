@@ -1,0 +1,33 @@
+
+#header {
+
+  background: rgb(3,51,200);
+  background: linear-gradient(90deg, rgba(3,51,200,1) 0%, rgba(48,118,232,1) 38%, rgba(0,212,255,1) 100%);
+    min-height: 50px;
+}
+
+#header .router-link-active{
+    background: #000;
+    border-radius: 4px;
+}
+
+#header nav {
+
+  background: rgb(3,51,200);
+  background: linear-gradient(90deg, rgba(3,51,200,1) 0%, rgba(48,118,232,1) 38%, rgba(0,212,255,1) 100%);
+}
+
+#header .nav-link{
+    cursor: pointer;
+}
+
+#header nav li a{
+    color: rgb(255, 255, 255);
+}
+.brand_logo_container{
+  padding:25px;
+  margin-top: -90px;
+
+
+
+}

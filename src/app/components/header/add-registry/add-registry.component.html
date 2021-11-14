@@ -1,0 +1,406 @@
+
+<app-detail (close)="closeDetail($event)" *ngIf="cargarActivosfijos" >
+
+  <!-- Titulo -->
+  <h1 detail-title  >
+    {{ (registrySelected ? 'label.edit.registry' : (typeRegistry === 'label.add.expense')) | translate }}
+  </h1>
+<!--  -->
+  <!-- Contenido -->
+  <form detail-content  [style.overflow]="'auto'" [style.height.vh]="'90'" [formGroup]="formRegistry" name="Activos"(ngSubmit)="addRegistry()" >
+
+
+      <button type="button" class="btn btn-primary" style="background-color: #3076e8;font-family: Arial;" (click)="dataReset();"> Borrar </button>
+    <!-- Descripcion -->
+
+    <div class="row form-group" style="margin-top: 20px;">
+      <div class="col-12 mb-2">
+        
+        <label for="invoice" style="color: #534d4d; font-family: Arial;">{{'label.invoice' | translate}}</label>
+        
+        <label style="color: #ff0000; font-family: Arial; margin-left: 5px"> * </label>
+      
+        <input (keyup.esc)="closeDetail()" style="background-color:  rgb(232, 247, 253)" type="text"  name="invoice" formControlName="invoice" class="form-control" id="invoice"
+        [ngClass]="{'is-valid': invoice.dirty && !invoice.errors, 'is-invalid': invoice.dirty && invoice.errors}">
+        <small [class.d-none]="invoice.valid || invoice.untouched" style="color:#ff0000">Numero de factura campo obligatorio</small>
+        <div class="invalid-feedback">
+          <span *ngIf="invoice.errors?.required">{{'label.required' | translate}}</span>
+          <span *ngIf="invoice.errors?.isNotNumber">{{'label.is.not.number' | translate}}</span>
+          <span *ngIf="invoice.errors?.isZero">{{'label.is.zero' | translate}}</span>
+          <span *ngIf="invoice.errors?.existsInvoice"> Numero de factura repetido </span>
+          <span *ngIf="invoice.errors?.minlength"> Solo debe tener 9 números </span>
+        </div>
+      </div>
+    </div>
+    <div class="row form-group">
+      <div class="col-12 mb-2">
+        <label for="provider" style="color: #534d4d; font-family: Arial;">{{'label.provider' | translate}}</label>
+        <input (keyup.esc)="closeDetail()" style="background-color:  rgb(232, 247, 253)" type="text" name="provider" formControlName="provider" class="form-control" id="provider"
+        [ngClass]="{'is-valid': provider.dirty && !provider.errors, 'is-invalid': provider.dirty && provider.errors}">
+        <small [class.d-none]="provider.valid || provider.untouched" style="color:#ff0000">Nombre de proveedor campo obligatorio</small>
+      <div class="valid-feedback">
+        <span>{{'label.correct' | translate}}</span>
+      </div>
+      <div class="invalid-feedback">
+        <span *ngIf="provider.errors?.required">{{'label.required' | translate}}</span>
+        <span *ngIf="provider.errors?.letterValid">{{'label.only.string' | translate}}</span>
+    </div>
+  </div>
+</div>
+    <div class="row form-group" *ngIf="idActivofijo.value !== 'Terrenos' &&idActivofijo.value !== 'Edificaciones' " ng-disabled="idActivofijo.value !== 'Terrenos' &&idActivofijo.value !== 'Edificaciones'" >
+      <div class="col-12 mb-2">
+        
+        <label for="internalcode" style="color: #534d4d; font-family: Arial;">{{'label.internalcode' | translate}}</label>
+        <label style="color: #ff0000; font-family: Arial; margin-left: 5px"> * </label>
+        <input (keyup.esc)="closeDetail()" style="background-color:  rgb(232, 247, 253)" type="text" name="internalcode" formControlName="internalcode" class="form-control" id="internalcode"
+          [ngClass]="{'is-valid': internalcode.dirty && !internalcode.errors, 'is-invalid': internalcode.dirty && internalcode.errors}">
+          
+        <div class="valid-feedback">
+          <span>{{'label.correct' | translate}}</span>
+        </div>
+        <small [class.d-none]="internalcode.untouched" style="color:#ff0000">Codigo interno campo obligatorio</small>
+        <div class="invalid-feedback">
+          <span *ngIf="internalcode.errors?.required">{{'label.required' | translate}}</span>
+          <span *ngIf="internalcode.errors?.isNotNumber">{{'label.is.not.number' | translate}}</span>
+          <span *ngIf="internalcode.errors?.isZero">{{'label.is.zero' | translate}}</span>
+          <span *ngIf="internalcode.errors?.existInternalcode">Codigo repetido</span>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="row form-group" *ngIf="idActivofijo.value === 'Vehículos' ">
+      <div class="col-12 mb-2">
+        <label for="ruat" style="color: #534d4d; font-family: Arial;">{{'label.ruat' | translate}}</label>
+        <label style="color: #0a0096; font-family: Arial; margin-left: 5px"> Campo solo para vehiculos </label>
+        <input (keyup.esc)="closeDetail()" style="background-color:  rgb(232, 247, 253)" type="text" name="ruat" formControlName="ruat" class="form-control" id="ruat">
+      </div>
+    </div>
+    <div class="row form-group" *ngIf="idActivofijo.value === 'Terrenos' ">
+      <div class="col-12 mb-2">
+        <label for="catastralcode" style="color: #534d4d; font-family: Arial;">{{'label.catastralcode' | translate}}</label>
+        <label style="color: #0a0096; font-family: Arial; margin-left: 5px"> Campo solo para Terrenos </label>
+        <input (keyup.esc)="closeDetail()" style="background-color:  rgb(232, 247, 253)" type="text" required name="catastralcode" formControlName="catastralcode" class="form-control" id="catastralcode">
+      </div>
+    </div>
+    
+    <div class="row form-group">
+      <div class="col-12 mb-2">
+        <label for="ubication" style="color: #534d4d; font-family: Arial;">{{'label.ubication' | translate}}</label>
+        <input (keyup.esc)="closeDetail()" style="background-color:  rgb(232, 247, 253)" type="text" name="ubication" formControlName="ubication" class="form-control" id="ubication">
+      </div>
+    </div>
+    <div class="row form-group">
+      <div class="col-12 mb-2">
+        
+        <label for="responsable" style="color: #534d4d; font-family: Arial;">{{'label.responsable' | translate}}</label>
+        <label style="color: #ff0000; font-family: Arial; margin-left: 5px"> * </label>
+        <input (keyup.esc)="closeDetail()" style="background-color:  rgb(232, 247, 253)" type="text" name="responsable" formControlName="responsable" class="form-control" id="responsable"
+        [ngClass]="{'is-valid': responsable.dirty && !responsable.errors, 'is-invalid': responsable.dirty && responsable.errors}">
+        <small [class.d-none]="responsable.valid || responsable.untouched" style="color:#ff0000">Responsable campo requerido</small>
+        <div class="valid-feedback">
+          <span>{{'label.correct' | translate}}</span>
+        </div>
+        <div class="invalid-feedback">
+          <span *ngIf="responsable.errors?.required">{{'label.required' | translate}}</span>
+          <span *ngIf="responsable.errors?.letterValid">{{'label.only.string' | translate}}</span>
+          <span *ngIf="responsable.errors?.isZero">{{'label.is.zero' | translate}}</span>
+      </div>
+      </div>
+    </div>
+    <div class="row form-group" *ngIf="idActivofijo.value === 'Vehículos' ">
+      <div class="col-12 mb-2">
+        <label for="licenseplate" style="color: #534d4d; font-family: Arial;">{{'label.licenseplate' | translate}}</label>
+        <label style="color: #0a0096; font-family: Arial; margin-left: 5px"> Campo solo para vehiculos </label>
+        <input (keyup.esc)="closeDetail()" style="background-color:  rgb(232, 247, 253)" type="text" name="licenseplate" formControlName="licenseplate" class="form-control" id="licenseplate">
+      </div>
+    </div>
+    <div class="row form-group" *ngIf="idActivofijo.value === 'Vehículos' ">
+      <div class="col-12 mb-2">
+        <label for="typeofvehicle" style="color: #534d4d; font-family: Arial;">{{'label.typeofvehicle' | translate}}</label>
+        <label style="color: #0a0096; font-family: Arial; margin-left: 5px"> Campo solo para vehiculos </label>
+        <input (keyup.esc)="closeDetail()" style="background-color:  rgb(232, 247, 253)"type="text" name="typeofvehicle" formControlName="typeofvehicle" class="form-control" id="typeofvehicle">
+      </div>
+    </div>
+    <div class="row form-group" *ngIf="idActivofijo.value === 'Vehículos' ">
+      <div class="col-12 mb-2">
+        <label for="marca" style="color: #534d4d; font-family: Arial;">{{'label.brand' | translate}}</label>
+        <label style="color: #0a0096; font-family: Arial; margin-left: 5px"> Campo solo para vehiculos </label>
+        <input (keyup.esc)="closeDetail()" style="background-color:  rgb(232, 247, 253)" type="text" name="marca" formControlName="marca" class="form-control" id="marca">
+      </div>
+    </div>
+    <div class="row form-group" *ngIf="idActivofijo.value === 'Vehículos' ">
+      <div class="col-12 mb-2">
+        <label for="color" style="color: #534d4d; font-family: Arial;">{{'label.color' | translate}}</label>
+        <label style="color: #0a0096; font-family: Arial; margin-left: 5px"> Campo solo para vehiculos </label>
+        <input (keyup.esc)="closeDetail()" style="background-color:  rgb(232, 247, 253)" type="text" name="color" formControlName="color" class="form-control" id="color">
+      </div>
+    </div>
+    <div class="row form-group" *ngIf="idActivofijo.value === 'Vehículos' ">
+      <div class="col-12 mb-2" >
+        <label for="chassis" style="color: #534d4d; font-family: Arial;">{{'label.chassis' | translate}}</label>
+        <label style="color: #0a0096; font-family: Arial; margin-left: 5px"> Campo solo para vehiculos </label>
+        <input (keyup.esc)="closeDetail()" style="background-color:  rgb(232, 247, 253)" type="text" name="chassis" formControlName="chassis" class="form-control" id="chassis" >
+      </div>
+    </div>
+    <div class="row form-group" *ngIf="idActivofijo.value === 'Vehículos'">
+      <div class="col-12 mb-2">
+        <label for="model" style="color: #534d4d; font-family: Arial;">{{'label.model' | translate}}</label>
+        <label style="color: #0a0096; font-family: Arial; margin-left: 5px"> Campo solo para vehiculos </label>
+        <input (keyup.esc)="closeDetail()" style="background-color:  rgb(232, 247, 253)" type="text" name="model" formControlName="model" class="form-control" id="model">
+      </div>
+    </div>
+
+    <!-- Fecha -->
+    <div class="row form-group">
+      <div class="col-12 mb-2">
+        <label for="date" style="color: #534d4d; font-family: Arial;">{{'label.date' | translate}}</label>
+        
+        <p-calendar (keyup.esc)="closeDetail()" style="background-color:  rgb(232, 247, 253)" inputStyleClass="form-control" name="date" dateFormat="dd/mm/yy" formControlName="date" id="date"
+          [readonlyInput]="false" [locale]="locale"></p-calendar>
+          <label style="color: #ff0000; font-family: Arial; margin-left: 5px"> * </label>
+          <small  style="color: #ff0000; font-family: Arial; margin-left: 15px" [(ngModel)]="deprecResult" [class.d-none]="deprecResult > 0 || date.untouched " >El activo añadido no sufre depreciación, debido a que su compra es reciente</small> 
+          
+      </div>
+     
+    </div>
+    <div class="row form-group">
+      <div class="col-12 mb-2">
+        <label for="agencia" style="color: #534d4d; font-family: Arial;">{{'label.branch' | translate}}</label>
+        <label style="color: #ff0000; font-family: Arial; margin-left: 5px"> * </label>
+        <select (keyup.esc)="closeDetail()" style="background-color:  rgb(232, 247, 253)" [(ngModel)]="selectedBranch.name"class="custom-select" name="agencia" id="agencia" formControlName="agencia">
+          <option [selected]="agencia.value === agencia.name" *ngFor= "let obranch of obranches" value={{obranch.name}}>{{obranch.name}}</option>
+        </select>
+        
+        <small [class.d-none]="agencia.valid || agencia.untouched" style="color:#ff0000">Nombre de agencia obligatorio</small>
+        <div class="valid-feedback">
+          <span>{{'label.correct' | translate}}</span>
+        </div>
+        <div class="invalid-feedback">
+          <span *ngIf="agencia.errors?.letterValid">{{'label.only.string' | translate}}</span>  
+      </div>
+      </div>
+    </div>
+
+    <!-- Activos fijos -->
+    <div class="row form-group">
+      <div class="col-12 mb-2">
+        <label for="activofijo" style="color: #534d4d; font-family: Arial;">{{'label.assettype' | translate}}</label>
+        <label style="color: #ff0000; font-family: Arial; margin-left: 5px"> * </label>
+        <select (keyup.esc)="closeDetail()" style="background-color:  rgb(232, 247, 253)"[(ngModel)]="selectedAsset.name" class="custom-select" name="activofijo" id="activofijo" formControlName="idActivofijo">
+          <option [selected]="idActivofijo.value === atype.name" *ngFor= "let atype of atypes" [ngValue]="atype.name">{{atype.name}}</option>
+        </select>
+        <small [class.d-none]="idActivofijo.valid || idActivofijo.untouched" style="color:#ff0000">Tipo de activo fijo requerido</small>
+        <div class="valid-feedback">
+          <span>{{'label.correct' | translate}}</span>
+        </div>
+        <div class="invalid-feedback">
+          <span *ngIf="responsable.errors?.letterValid">{{'label.only.string' | translate}}</span>  
+      </div>
+      </div>
+      
+    </div>
+
+    <!-- Precio -->
+    <div class="row form-group">
+      <div class="col-12 mb-2">
+        <label for="precio" style="color: #534d4d; font-family: Arial;">{{'label.price' | translate}}</label>
+        <label style="color: #ff0000; font-family: Arial; margin-left: 5px"> * </label>
+        <input (keyup.esc)="closeDetail()" style="background-color:  rgb(232, 247, 253)" type="text" name="precio" formControlName="precio" class="form-control" id="precio"
+          [ngClass]="{'is-valid': precio.dirty && !precio.errors, 'is-invalid': precio.dirty && precio.errors}">
+          
+        <div class="valid-feedback">
+          <span>{{'label.correct' | translate}}</span>
+        </div>
+        
+        <div class="invalid-feedback">
+          <span *ngIf="precio.errors?.required">{{'label.required' | translate}}</span>
+          <span *ngIf="precio.errors?.isNotNumber">{{'label.is.not.number' | translate}}</span>
+          <span *ngIf="precio.errors?.isZero">{{'label.is.zero' | translate}}</span>
+        </div>
+      </div>
+    </div>
+    <div class="row form-group">
+      <div class="col-12 mb-2">
+        <label for="authNumber" style="color: #534d4d; font-family: Arial;">{{'label.authNumber' | translate}}</label>
+        <label style="color: #ff0000; font-family: Arial; margin-left: 5px"> * </label>
+        <input (keyup.esc)="closeDetail()" style="background-color:  rgb(232, 247, 253)" type="text" name="authNumber" formControlName="authNumber" class="form-control" id="authNumber"
+          [ngClass]="{'is-valid': authNumber.dirty && !authNumber.errors, 'is-invalid': authNumber.dirty && authNumber.errors}">
+          
+        <div class="valid-feedback">
+          <span>{{'label.authNumber' | translate}}</span>
+        </div>
+        <div class="invalid-feedback">
+          <span *ngIf="authNumber.errors?.required">{{'label.required' | translate}}</span>
+          <span *ngIf="authNumber.errors?.isNotNumber">{{'label.is.not.number' | translate}}</span>
+          <span *ngIf="authNumber.errors?.isZero">{{'label.is.zero' | translate}}</span>
+          <span *ngIf="authNumber.errors?.lengththirteenValid">solo pude contener 13 digitos</span>
+        </div>
+      </div>
+    </div>
+    <div class="row form-group">
+      <div class="col-12" >
+        <button type="button"
+          class="btn btn-block btn-primary mt-4" style="font-family: Arial; background-color: #3076e8;" (click)="calcFiscal()"> Crédito Fiscal </button>
+      </div>
+    </div>
+    <div class="row form-group" >
+    <div class="col-12 mb-2">
+
+      <label for="fiscal" style="color: #534d4d; font-family: Arial;">{{'label.fiscal' | translate}}</label>
+      <input (keyup.esc)="closeDetail()" class="form-control-file" [readOnly]="true" [(ngModel)]="fiscalCredit" (ngModelChange)="fiscalCredit" value="fiscal" type="text" name="fiscal" formControlName="fiscal" class="form-control" id="fiscal"
+        [ngClass]="{'is-valid': fiscal.dirty && !fiscal.errors, 'is-invalid': fiscal.dirty && fiscal.errors}">
+      <div class="valid-feedback">
+        <span>{{'label.correct' | translate}}</span>
+      </div>
+      <div class="invalid-feedback">
+        <span *ngIf="fiscal.errors?.required">{{'label.required' | translate}}</span>
+        <span *ngIf="fiscal.errors?.isNotNumber">{{'label.is.not.number' | translate}}</span>
+        <span *ngIf="fiscal.errors?.isZero">{{'label.is.zero' | translate}}</span>
+      </div>
+    </div>
+  </div>
+
+
+
+  <div style="padding: 20mm">
+
+    <input type="file" name="file" accept=".jpeg,.jpg,.png,.svg" [(ngModel)]="imagePost" (ngModelChange)="imagePost" value="imagePost"  name="imagePost" formControlName="imagePost" class="form-control" id="imagePost" (input)="onFileChanged($event)" accept=".jpeg,.jpg,.png,.svg" />
+    <ng-container style="justify-self: center;">
+
+    <img [src]="downloadableURL" onerror="this.onerror=null;this.src='../../../../assets/img/noimage.jpg';" style="left: 40px;" width="400px" height="280px"/>
+
+    </ng-container>
+
+    {{ downloadableURL }}
+
+    <br />
+
+  <!-- Progress Bar -->
+
+    <div *ngIf="progressValue | async as val">
+      <progress type="warning"  [value]="val" style="height: 7mm; width: 50%" max="100" ></progress>
+      <br />
+        <span *ngIf="val<100" style="color:rgb(255, 60, 0); font-size: 17px; font-weight: 410;">{{ val | number}}% </span><span *ngIf="val == 100" style="color:rgb(1, 153, 34);  font-size: 17px; font-weight: 410;">Completed !</span>
+    </div>
+
+    <!-- End -->
+
+  </div>
+
+    <div class="row form-group" [hidden]="idActivofijo.value === 'Terrenos'">
+      <div class="col-12" >
+        <button type="button"
+          class="btn btn-block btn-primary mt-4" style="font-family: Arial; background-color: #3076e8" (click)="depreciate()" [disabled]="idActivofijo.value === 'Terrenos'" > Depreciar </button>
+      </div>
+    </div>
+  <div class="row form-group" [hidden]="idActivofijo.value === 'Terrenos'">
+      <div class="col-12 mb-2">
+
+        <label for="depreciation" style="color: #534d4d; font-family: Arial;">{{'label.depreciation' | translate}}</label>
+        <input  (keyup.esc)="closeDetail()" class="form-control-file" [readOnly]="true" [(ngModel)]="deprecResult" (ngModelChange)="deprecResult=deprecResult || 0" value="depreciation" type="text" name="depreciation" formControlName="depreciation" class="form-control" id="depreciation"
+          [ngClass]="{'is-valid': depreciation.dirty && !depreciation.errors, 'is-invalid': depreciation.dirty && depreciation.errors}"
+          >
+          
+        <div class="valid-feedback">
+          <span>{{'label.correct' | translate}}</span>
+        </div>
+        <div class="invalid-feedback">
+          <span *ngIf="depreciation.errors?.required">{{'label.required' | translate}}</span>
+          <span *ngIf="depreciation.errors?.isNotNumber">{{'label.is.not.number' | translate}}</span>
+          <span *ngIf="depreciation.errors?.isZero">{{'label.is.zero' | translate}}</span>
+        </div>
+      </div>
+    </div>
+    <div class="row" *ngIf="idActivofijo.value !=='Terrenos'&&idActivofijo.value !=='Edificaciones'">
+      <div class="col-12 col-lg-6">
+          <div class="kt-portlet kt-portlet--tab">
+              <div class="kt-portlet__head">
+                  <div class="kt-portlet__head-label">
+                      <span class="kt-portlet__head-icon kt-hide">
+                          <i class="la la-gear"></i>
+                      </span>
+                      <h3 class="kt-portlet__head-title">
+                          Acerca el código QR
+                      </h3>
+                  </div>
+              </div>
+              <div class="kt-portlet__body">
+                  <zxing-scanner *ngIf="scannerEnabled" #scanner (scanSuccess)="scanSuccessHandler($event)"  >
+                  </zxing-scanner>
+                  <button (click)="enableScanner()" *ngIf="!scannerEnabled" type="button" class="btn btn-success">LEER
+                      OTRO</button>
+              </div>
+          </div>
+      </div>
+
+      <div class="col-12 col-lg-6">
+          <div class="kt-portlet kt-callout kt-callout--info kt-callout--diagonal-bg scannedInfo">
+              <div class="kt-portlet__body">
+                  <div class="kt-callout__body">
+                      <div class="kt-callout__content">
+                          <h3 class="kt-callout__title">{{qrcodescanned}}</h3>
+                          <h3 class="kt-callout__desc">
+
+                          </h3>
+
+
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+
+  </div>
+
+
+
+    <div class="row form-group">
+      <div class="col-12 mb-2">
+        <label for="descripcion" style="color: #534d4d; font-family: Arial;">{{'label.descripcion' | translate}}</label>
+        <input (keyup.esc)="closeDetail()" style="background-color:  rgb(232, 247, 253)" type="text" name="descripcion" formControlName="descripcion" class="form-control" id="descripcion">
+      </div>
+    </div>
+    <div class="row form-group">
+      <div class="col-12">
+        
+      
+        <button type="submit"    
+          class="btn btn-block btn-primary mt-4" style="font-family: Arial; background-color: #3076e8" [disabled]="formRegistry.invalid" (keyup.enter)="registrySelected ? 'label.edit.registry' :'label.add.asset'">
+          {{ (registrySelected ? 'label.edit.registry' :'label.add.asset') | translate}}</button>
+      </div>
+
+    </div>
+
+  </form>
+
+</app-detail>
+
+<!-- Templates -->
+
+<ng-template #modal_success let-modal>
+
+  <div class="modal-header">
+    <h5 class="modal-title">{{'label.success' | translate}}</h5>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="modal.close()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    {{(registrySelected ? 'label.edit.registry.success' : 'label.add.registry.success') | translate}}
+  </div>
+
+</ng-template>
+
+<ng-template #modal_error let-modal>
+
+  <div class="modal-header">
+    <h5 class="modal-title">{{'label.error' | translate}}</h5>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="modal.close()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body" >
+    {{(registrySelected ? 'label.edit.registry.error' : 'label.add.registry.error') | translate}}
+  </div>
+</ng-template>

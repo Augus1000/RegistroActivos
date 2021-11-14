@@ -1,0 +1,38 @@
+
+
+<div class="row print-container"  *ngIf="showGraphics">
+  <div class="col-12 mt-4 mb-4">
+    <style>
+      @media print{
+        /* Hide every other element */
+        body *{
+          visibility: hidden;
+        }
+        /*then displaying print container elements*/
+        .print-container, .print-container *{
+          visibility: visible;
+        }
+      }
+      </style>
+      <button style="cursor: pointer; color:#1E90FF; background-color: #534d4d; font-weight: bold;" class="btn btn-outline-dark" onclick="window.print();">Print</button>
+    <!-- Filtro -->
+    <div class="row">
+      <div class="col-12" style="color:#1E90FF">
+          <app-filter
+            [showYears]="true"
+            [listOriginal]="listRegistries"
+            (filter)="fillData($event)"></app-filter>
+      </div>
+    </div>
+
+    <!-- Grafico -->
+    <div class="row">
+      <div class="col-12">
+        <p-chart type="bar" [data]="data" [responsive]="true"></p-chart>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<app-spinner [hideSpinner]="showGraphics"></app-spinner>

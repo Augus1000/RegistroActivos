@@ -1,0 +1,76 @@
+<div class="container h-100" id="login">
+  <div class="d-flex justify-content-center h-100">
+<div class="user_card">
+    <!-- logo de la app -->
+    <div class="d-flex justify-content-center">
+      <div class="brand_logo_container">
+        <img width="75" [src]="config.logoLogin" class="brand_logo" alt="Logo" />
+      </div>
+    </div>
+    <!-- Muestra el error -->
+    <div class="row" *ngIf="showLoginError">
+      <div class="col-12">
+        <div class="alert alert-danger" role="alert">
+          <strong>{{'label.login.error' | translate}}</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-center form_container" style="margin-top: 30px;" >
+      <div class="d-flex justify-content-center form_container" style="margin-top: 30px;">
+        <form [formGroup]="formLogin" (ngSubmit)="checkLogin()">
+
+          <!-- Email -->
+          <div class="w3-container has-feedback" style="margin-top: 10px;">
+            <div class="w3-container has-feedback" >
+              <label for="email" style="color: rgb(0, 0, 0); font-family: Arial, Helvetica, sans-serif; Font-size: 16px">{{'label.user' | translate}}</label>
+              <i class="fa fa-user form-control-feedback" aria-hidden="true" style="color:black"></i>
+              <input placeholder="Email"class="form-control input_user input-field" type="email" formControlName="email" class="form-control" id="email">
+
+            </div>
+          </div>
+
+          <!-- Contraseña-->
+          <div class="form-group has-feedback">
+            <div class="form-group has-feedback" style="margin-top: 15px;">
+              <label for="pass" style="color: rgb(0, 0, 0);font-family: Arial, Helvetica, sans-serif; Font-size: 16px" >{{'label.pass' | translate}}</label>
+              <i class="fa fa-unlock-alt form-control-feedback" style="color:black" aria-hidden="true"></i>
+              <input placeholder="Contraseña "class="form-control input_pass input-field" type="password" formControlName="pass"  id="pass">
+
+            </div>
+          </div>
+
+
+            <div class="d-flex justify-content-center mt-3 login_container" style="position:center; left: 480px;">
+              <button style="margin-top: 20px; font-family: Arial, Helvetica, sans-serif" class="btn login_btn" type="submit"  [disabled]="formLogin.invalid">
+                {{'label.login' | translate}}
+              </button>
+            </div>
+
+
+            <div class="d-flex justify-content-center mt-3 login_container" style="position:center; left: 448px">
+              <button style="font-family: Arial, Helvetica, sans-serif; Font-size: 16px" class="btn login_btn" onClick="location.href='https://www.google.com/?gws_rd=ssl'">
+                Cerrar Ventana
+              </button>
+            </div>
+
+          <!-- Link enlace create account -->
+
+            <div class="d-flex justify-content-center mt-3 login_container">
+              <a href="#" style="margin-top: 20px; color:#000000;font-family: Arial, Helvetica, sans-serif;
+              font-weight: 100; " [routerLink]="['/create-account']">{{'label.create.account' | translate}}</a>
+            </div>
+
+          <div class="d-flex justify-content-center mt-3 login_container">
+            <p>
+              <a style="color: #000000;font-family: Arial, Helvetica, sans-serif; font-weight: 100; " [routerLink]="['/forgot-password']"> Olvidaste tu contraseña? </a>
+            </p>
+          </div>
+
+        </form>
+      </div>
+    </div>
+</div>
+
+  </div>
+</div>
