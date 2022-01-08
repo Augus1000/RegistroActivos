@@ -7,7 +7,7 @@
   </h1>
 <!--  -->
   <!-- Contenido -->
-  <form detail-content  [style.overflow]="'auto'" [style.height.vh]="'90'" [formGroup]="formRegistry" name="Activos"(ngSubmit)="addRegistry()" >
+  <form [ngStyle]="{'max-height' : registrySelected ? '400px':'900px'}"  detail-content  [style.overflow]="'auto'" [style.height.vh]="'90'" [formGroup]="formRegistry" name="Activos"(ngSubmit)="addRegistry()" >
 
 
       <button type="button" class="btn btn-primary" style="background-color: #3076e8;font-family: Arial;" (click)="dataReset();"> Borrar </button>
