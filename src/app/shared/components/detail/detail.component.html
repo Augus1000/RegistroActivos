@@ -1,4 +1,4 @@
-<div id="detail" [@slide] *ngIf="showDetail">
+<div [ngStyle]="{'max-height' : registrySelected ? '200px':'800px'}" id="detail" [@slide] *ngIf="showDetail">
 
   <div class="row">
     <div class="col-lg-11 col-md-9 col-8">
