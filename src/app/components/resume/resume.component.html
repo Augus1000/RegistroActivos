@@ -30,14 +30,15 @@
 
 </div>
 </div>
-<button class="btn btn-primary" type="button"  (click)="exportexcel()">Exportar a Excel</button>
-<button class="btn btn-primary" type="button"  (click)="convertToPDF()">Convertir a pdf</button>
+<button class="btn btn-primary" type="button" (click)="exportexcel()">Exportar a Excel</button>
+<button class="btn btn-primary" type="button" (click)="convertToPDF()">Convertir a pdf</button>
+<button class="btn btn-primary" type="button" (click)="addBackup()">Crear backup</button>
     <!-- Registros -->
     <div class="row" *ngIf="listRegistriesFiltered.length > 0" id="tablaRegistros">
       
       <div class="col-12">
 
-        <div class="row m-0"
+        <div class="row m-0" [ngStyle]="{'color' : registry.estado == 'Baja' ? 'red':'black'}" 
           *ngFor="let registry of listRegistriesFiltered | paginate: {itemsPerPage: itemsRegistries, currentPage: page}">
           <div class="col-12 registry mb-2">
 
@@ -50,17 +51,19 @@
                     <th style="font-family: Russo One">{{registry.date | date: 'dd MMM yyyy'}}</th>
                   </div>
                   <!-- Iconos de accion -->
-                  <div class="col-xl-1 col-lg-2 col-3 text-right" style="color: #ffffff">
-                  
-                   <i class="fa fa-pencil" style="background-color: #00d4ff" (click)="openEditDetail(registry)"></i>
-                  <!--  <i class="fa fa-trash" style="background-color: #00d4ff;"(click)="removeRegistry(registry)"></i> -->
+                  <div class="col-xl-1 col-lg-2 col-4 text-right" style="color: #ffffff">
+                    <a target="_blank"><i class="fa fa-id-card-o" aria-hidden="true"  style="background-color: #00d4ff" (click)="openAsignationDetail(registry)"></i></a>
+                    <a target="_blank"><i class="fa fa-pencil"  style="background-color: #00d4ff" (click)="openEditDetail(registry)"></i></a>
+                    <a target="_blank"><i class="fa fa-trash" style="background-color: #00d4ff;" (click)="removeRegistry(registry)"></i></a> 
+
+
                   </div>
                 </div>
 
               </div>
             </div>
 
-            <div class="row ">
+            <div class="row "  >
               <div class="col-12 rounded-left rounded-right border-bottom border-right border-left">
 
                 <div class="row">       
@@ -146,7 +149,10 @@
                     <th class="title-field d-block">{{'label.branch' | translate}}</th>
                     <th class="d-block">{{registry.agencia}}</th>
                   </div>
-
+                  <div class="col-4 p-3">
+                    <th class="title-field d-block" [ngStyle]="{'color' : registry.estado == 'Baja' ? 'red':'#003e81'}">{{'label.estado' | translate}}</th>
+                    <th class="d-block" style="color: #ff0000">{{registry.estado}}</th>
+                  </div>
                   <!-- Categoria -->
                   <div class="col-4 p-3" >
                     <th class="title-field d-block">{{'label.assettype' | translate}}</th>
@@ -193,6 +199,25 @@
 <app-spinner [hideSpinner]="showResume"></app-spinner>
 
 <!-- Templates -->
+
+<ng-template #modal_confirm_delete let-modal>
+
+  <div class="modal-header">
+    <h5 class="modal-title">{{'label.confirm' | translate}}</h5>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="modal.close('no')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    {{'label.confirm.delete.registry' | translate}}
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-dark" style="color: rgb(0, 0, 0)"(click)="modal.close('yes')">{{'label.yes' | translate}}</button>
+    <button type="button" class="btn btn-outline-dark" style="color: rgb(0, 0, 0)" (click)="modal.close('no')">{{'label.no' | translate}}</button>
+  </div>
+
+</ng-template>
+
 <ng-template #modal_responsable let-modal>
  
     
@@ -224,23 +249,6 @@
 
     </div>
   </form>
-  </div>
-
-</ng-template>
-<ng-template #modal_confirm_delete let-modal>
-
-  <div class="modal-header">
-    <h5 class="modal-title">{{'label.confirm' | translate}}</h5>
-    <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="modal.close('no')">
-      <span aria-hidden="true">&times;</span>
-    </button>
-  </div>
-  <div class="modal-body">
-    {{'label.confirm.delete.registry' | translate}}
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-outline-dark" style="color: rgb(0, 0, 0)"(click)="modal.close('yes')">{{'label.yes' | translate}}</button>
-    <button type="button" class="btn btn-outline-dark" style="color: rgb(0, 0, 0)" (click)="modal.close('no')">{{'label.no' | translate}}</button>
   </div>
 
 </ng-template>
