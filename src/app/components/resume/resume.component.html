@@ -193,7 +193,40 @@
 <app-spinner [hideSpinner]="showResume"></app-spinner>
 
 <!-- Templates -->
+<ng-template #modal_responsable let-modal>
+ 
+    
+  <div class="modal-body" style="margin-top: 35px;">
+    
+  <form detail-content [formGroup]="formRegistry" (ngSubmit)="addRegistry(registry)" name="Activos">
+    <div class="col-12 mb-2" >
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="modal.close()">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    
+      <label for="responsable" style="color: #534d4d; font-family: Arial;">{{'label.asignation' | translate}}</label>
+      <label style="color: #ff0000; font-family: Arial; margin-left: 5px"> * </label>
+      <input (keyup.esc)="closeDetail()" style="background-color:  rgb(232, 247, 253)" type="text" name="responsable" formControlName="responsable" class="form-control" id="responsable"
+      >
+      <small [class.d-none]="responsable.valid || responsable.untouched" style="color:#ff0000">Responsable campo requerido</small>
+      <div class="valid-feedback">
+        <span>{{'label.correct' | translate}}</span>
+      </div>
+      
+    </div>
+    <div class="row form-group">
+      <div class="col-12">    
+        <button type="submit"    
+          class="btn btn-block btn-primary" style="font-family: Arial; background-color: #3076e8" (click)="addRegistry(registry)" (keyup.enter)="registrySelected ? 'label.edit.registry' :'label.add.asset'">
+          {{ (registrySelected ? 'label.edit.registry' :'label.add.asset') | translate}}</button>
+          
+      </div>
 
+    </div>
+  </form>
+  </div>
+
+</ng-template>
 <ng-template #modal_confirm_delete let-modal>
 
   <div class="modal-header">
