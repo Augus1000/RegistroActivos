@@ -5,17 +5,18 @@ import { RegistryService } from './../../../services/registry.service';
 import { ConfigService } from './../../../services/config.service';
 import { AssettypeService } from './../../../services/assettype.service';
 import { FormGroup, FormBuilder, FormControl, Validators, AbstractControl} from '@angular/forms';
-import { Component, OnInit, Input, Output, EventEmitter, ViewChild, TemplateRef, ViewEncapsulation, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ViewChild, TemplateRef, ViewEncapsulation, ChangeDetectorRef, Renderer2 } from '@angular/core';
 import { IActivofijo} from '../../../interfaces/iactivofijo';
 import { internalExists, quantityValid, invoiceExists, lengthnineValid, letterValid, lengththirteenValid } from 'src/app/validators/validators';
-import { IRegistry } from 'src/app/interfaces/iregistry';
+import { IRegistry } from '../../../interfaces/iregistry';
 import * as moment from 'moment';
-import { IAgencia } from 'src/app/interfaces/iagencia';
+import { IAgencia } from '../../../interfaces/iagencia';
 import { AngularFireStorage, AngularFireUploadTask } from '@angular/fire/storage';
 import { Observable } from 'rxjs';
 import {QrScannerComponent} from 'angular2-qrscanner';
 
 import { Appointment } from '../../../models/appointment.model';
+import { IEstado } from '../../../interfaces/iestado'
 
 
 export interface FilesUploadMetadata {
@@ -29,6 +30,7 @@ export interface FilesUploadMetadata {
   encapsulation: ViewEncapsulation.None,
 })
 export class AddRegistryComponent implements OnInit {
+  
 
   public scannerEnabled: boolean = true;
   private transports: Transport[] = [];
@@ -38,7 +40,7 @@ export class AddRegistryComponent implements OnInit {
   @ViewChild("modal_success", { static: false }) modal_success: TemplateRef<any>;
   @ViewChild("modal_error", { static: false }) modal_error: TemplateRef<any>;
   @ViewChild(DetailComponent, { static: false }) parentDetail: DetailComponent;
-
+  
   @Input() registrySelected: Registry;
   @Input() typeRegistry: string;
   @Output() hide: EventEmitter<boolean>;
@@ -48,8 +50,10 @@ export class AddRegistryComponent implements OnInit {
   public formRegistry: FormGroup;
   public listaActivosfijos: IActivofijo[];
   public listBranches: IAgencia[];
+  public listEstados:IEstado[];
   public cargarActivosfijos: boolean;
   public loadBranches:boolean;
+  public loadEstados:boolean;
   public locale: any;
   public listRegistriesOriginal: IRegistry[];
   public listRegistriesFiltered: IRegistry[];
@@ -59,8 +63,10 @@ export class AddRegistryComponent implements OnInit {
   public total: number;
   public selectedAsset: IActivofijo = { id: 0, name: '', user: '' };
   public selectedBranch: IAgencia = { id: 0, name: '', user: '' };
+  public selectedEstado: IEstado = { id: 0, name: '', user: '' };
   public atypes: IActivofijo[];
   public obranches: IAgencia[];
+  public oestados: IEstado[];
   public Calculator: number;
   private basePath = '/registries';
   file: File;
@@ -70,19 +76,20 @@ export class AddRegistryComponent implements OnInit {
     private  cd: ChangeDetectorRef,
     private formBuilder: FormBuilder,
     private aService: AssettypeService,
-
     private config: ConfigService,
     private rService: RegistryService,
     private modalService: NgbModal,
 private storage: AngularFireStorage,
-
+private renderer:Renderer2,
   ) {
 
     this.close = new EventEmitter<boolean>();
     this.listaActivosfijos = [];
     this.listBranches= [];
+    this.listEstados=[];
     this.cargarActivosfijos = false;
     this.loadBranches = false;
+    this.loadEstados= false;
     // Obtengo el locale para los calendarios
     this.locale = this.config.locale;
     let disableBtn = false;
@@ -100,6 +107,7 @@ private storage: AngularFireStorage,
     this.atypes = this.aService.getAtypes();
 
     this.obranches=this.aService.getObranches();
+    this.oestados=this.aService.getOestados();
     // Si estoy editando
     if (this.registrySelected) {
       // Validamos la cantidad
@@ -130,7 +138,8 @@ private storage: AngularFireStorage,
         fiscal: new FormControl(this.registrySelected.fiscal),
         authNumber: new FormControl(this.registrySelected.authNumber),
         imagePost:new FormControl(this.registrySelected.imagePost),
-        qrcode:new FormControl('')
+        qrcode:new FormControl(''),
+        estado:new FormControl(this.aService.getOestados)
       });
     } else {
       // Nuevo registro
@@ -142,6 +151,7 @@ private storage: AngularFireStorage,
         id:new FormControl(0),
         idActivofijo: new FormControl('',[Validators.required,letterValid]),
         agencia: new FormControl('',[Validators.required,letterValid]),
+        estado: new FormControl('',[Validators.required,letterValid]),
         precio: new FormControl('', [Validators.required, quantityValid]),
         catastralcode: new FormControl(''),
         ruat: new FormControl(''),      
@@ -167,9 +177,9 @@ private storage: AngularFireStorage,
 
 
     };
-
-
-
+    
+    
+    
 
 
 
@@ -189,9 +199,17 @@ private storage: AngularFireStorage,
     }, error => {
       console.error(error);
       this.loadBranches = true;
-    })
-  }
+    });
   
+  this.aService.getEstados().subscribe(listEstados => {
+    this.listEstados = listEstados;
+
+    this.loadEstados = true;
+  }, error => {
+    console.error(error);
+    this.loadEstados = true;
+  });
+}
   async onFileChanged(event) {
     const file = event.target.files[0];
     if (file) {
@@ -266,6 +284,9 @@ private storage: AngularFireStorage,
   get agencia() {
     return this.formRegistry.get('agencia');
   }
+  get estado() {
+    return this.formRegistry.get('estado');
+  }
   /**
    * Obtengo el formcontrol ubication
    */
@@ -291,7 +312,7 @@ private storage: AngularFireStorage,
     return this.formRegistry.get('authNumber');
   }
 
-
+  
 
   /**
    * Cierro el detalle
@@ -301,47 +322,54 @@ private storage: AngularFireStorage,
     this.close.emit($event);
   }
  
+  
+
+  
   /**
    * Añade el registro
    */
-  addRegistry() {
-
-    let registry = new Registry(this.formRegistry.value);
-
-
-    if (this.registrySelected) {
-      // Editar registro
-      registry.qrcode=this.qrcodescanned;
-      registry.imagePost = this.downloadableURL;
-      this.rService.editRegistry(registry).then(() => {
-        this.modalService.open(this.modal_success).result.then(() => {
-          this.parentDetail.closeDetail();
-        })
-
-      }, error => {
-        console.error(error);
-        this.modalService.open(this.modal_error);
-      });
-      
-    } else {
-      // Crear registro
-      registry.qrcode=this.qrcodescanned;
-      registry.imagePost = this.downloadableURL;
-      this.rService.addRegistry(registry).then(() => {
-        this.modalService.open(this.modal_success).result.then(() => {
-          this.parentDetail.closeDetail();
-        })
-
-      }, error => {
-        console.error(error);
-        this.modalService.open(this.modal_error);
-      })
-
-    
-  
+   errorMessage = "";
+   addRegistry() {
  
-  }
-}
+     let registry = new Registry(this.formRegistry.value);
+ 
+ 
+     if (this.registrySelected) {
+       // Editar registro
+       registry.qrcode=this.qrcodescanned;
+       registry.imagePost = this.downloadableURL;
+       this.rService.editRegistry(registry).then(() => {
+         this.modalService.open(this.modal_success).result.then(() => {
+           this.parentDetail.closeDetail();
+         })
+ 
+       }, error => {
+         console.error(error);
+         this.modalService.open(this.modal_error);
+       });
+       
+     } else {
+       // Crear registro
+       registry.qrcode=this.qrcodescanned;
+       registry.imagePost = this.downloadableURL;
+       this.rService.addRegistry(registry).then(() => {
+         this.modalService.open(this.modal_success).result.then(() => {
+           this.parentDetail.closeDetail();
+           this.errorMessage = ""
+         })
+ 
+       }, error => {
+         if(error && error.message && error.message.includes('PERMISSION_DENIED')){
+           this.errorMessage = 'User do not have permission'
+         }else{
+           this.errorMessage = "Usuario no autorizado";
+         }
+         this.modalService.open(this.modal_error);
+         this.parentDetail.closeDetail();
+       })  
+  
+   }
+ }
 
   
   calcFiscal(){
@@ -477,6 +505,7 @@ interface Slot {
 
 
 }
+
 
 
 
