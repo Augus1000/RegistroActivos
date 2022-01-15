@@ -77,7 +77,8 @@ public filterReg:IRegistry;
       'agencia':null,
       'nombre':null,
       'imagePost':null,
-      'qrcode': null
+      'qrcode': null,
+      'estado':null
     }
 
     this.locale = this.config.locale;
@@ -124,7 +125,7 @@ public filterReg:IRegistry;
     const year = this.filterForm.year ? this.filterForm.year : Date.now();
     const branches = this.filterReg.agencia ? this.filterReg.agencia :"";
     const asset = this.filterReg.idActivofijo ? this.filterReg.idActivofijo:"";
-
+    const estados = this.filterReg.estado ? this.filterReg.estado:"";
     if (!this.showYears) {
       this.listFiltered = this.listOriginal.filter(l => {
         return moment(l.date, 'YYYY-MM-DD').isSameOrAfter(moment(dateStart, 'YYYY-MM-DD')) &&
@@ -133,6 +134,7 @@ public filterReg:IRegistry;
           toNumber(l.precio) >= minPrice &&
           (branches === "" ? true : branches ===  l.agencia) &&
           (asset === "" ? true : asset ===  l.idActivofijo) &&
+          (estados=== "" ? true : estados ===  l.estado) &&
           this.route.navigate(['/resume'])
 
       })
