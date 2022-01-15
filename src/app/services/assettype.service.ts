@@ -5,6 +5,7 @@ import { Injectable } from '@angular/core';
 import { AngularFireDatabase } from '@angular/fire/database';
 import { Observable } from 'rxjs';
 import { IAgencia } from '../interfaces/iagencia';
+import { IEstado } from '../interfaces/iestado';
 
 @Injectable({
   providedIn: 'root'
@@ -69,6 +70,18 @@ export class AssettypeService {
       user:'',
     },
   ]
+  public oestados: IEstado[]=[
+    {
+      id: 1,
+      name: 'Alta',
+      user:'',
+    },
+    {
+      id: 2,
+      name: 'Baja',
+      user:'',
+    },
+  ]
   constructor(
     private afd: AngularFireDatabase,
     private authService: AuthService
@@ -92,8 +105,13 @@ export class AssettypeService {
     return this.afd.list<IAgencia>('branches', ref => ref.orderByChild('user').equalTo(this.authService.currentUser())).valueChanges();
 
   }
-  /* getAssettypes(): Observable<IAssettype[]>
+  getOestados():IEstado[]{
+    return this.oestados;
+  }
+  getEstados(): Observable<IEstado[]>{
+    return this.afd.list<IEstado>('estado', ref => ref.orderByChild('user').equalTo(this.authService.currentUser())).valueChanges();
 
+  }
   /**
    * Añade una categoria
    * @param assettype Categoria a añadir
@@ -150,3 +168,4 @@ export class AssettypeService {
 
 
 }
+
