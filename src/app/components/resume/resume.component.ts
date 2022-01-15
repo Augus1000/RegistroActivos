@@ -5,24 +5,31 @@ import { ConfigService } from './../../services/config.service';
 import { AssettypeService } from './../../services/assettype.service';
 import { RegistryService } from './../../services/registry.service';
 import { IRegistry } from './../../interfaces/iregistry';
-import { Component, OnInit, ViewChild, TemplateRef, Input } from '@angular/core';
-
+import { Component, OnInit, ViewChild, TemplateRef, Input, Output, EventEmitter, Renderer2 } from '@angular/core';
+import {QrScannerComponent} from 'angular2-qrscanner';
 import { cloneDeep, forEach, sumBy, toNumber, orderBy, find } from 'lodash-es';
-import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import * as XLSX from 'xlsx';
 import * as XLSXStyle from 'xlsx-style';
+import * as moment from 'moment';
+import { IAgencia } from 'src/app/interfaces/iagencia';
 import { IActivofijo } from 'src/app/interfaces/iactivofijo';
+import { internalExists, quantityValid, invoiceExists, lengthnineValid, letterValid, lengththirteenValid } from 'src/app/validators/validators';
 import * as FileSaver from 'file-saver';
 const EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
 const EXCEL_EXTENSION = '.xlsx';
-import { AngularFireStorage } from '@angular/fire/storage';
+import { AngularFireStorage, AngularFireUploadTask  } from '@angular/fire/storage';
 import { Observable } from 'rxjs';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { DetailComponent } from './../../shared/components/detail/detail.component';
+import { AngularFireDatabase } from 'angularfire2/database';
+import { IEstado } from '../../interfaces/iestado';
 
 
 @Component({
   selector: 'app-resume',
+  
   templateUrl: './resume.component.html',
   styleUrls: ['./resume.component.css']
 })
@@ -30,12 +37,31 @@ import html2canvas from 'html2canvas';
 export class ResumeComponent implements OnInit {
   uploadPercent$: Observable<number>;
   downloadUrl$: Observable<string>;
-  @Input() registrySelected: Registry;
+  
+  @Input() asignation:Registry;
+  public scannerEnabled: boolean = true;
+  
+  private information: string = "No se ha detectado información de ningún código. Acerque un código QR para escanear.";
+
+  @ViewChild(QrScannerComponent) qrScannerComponent: QrScannerComponent ;
   @ViewChild("modal_confirm_delete", { static: false }) modal_confirm_delete: TemplateRef<any>;
   @ViewChild("modal_success", { static: false }) modal_success: TemplateRef<any>;
   @ViewChild("modal_error", { static: false }) modal_error: TemplateRef<any>;
+  @ViewChild("modal_responsable", { static: false }) modal_responsable: TemplateRef<any>;
+  @ViewChild(DetailComponent, { static: false }) parentDetail: DetailComponent;
+  @Input() typeRegistry: string;
+  @Input() registrySelected: Registry;
+  @Output() hide: EventEmitter<boolean>;
+  @Output() close: EventEmitter<boolean>;
+  @Input() listRegistries: Registry[];
+  public selectedAsset: IActivofijo = { id: 0, name: '', user: '' };
+  public selectedBranch: IAgencia = { id: 0, name: '', user: '' };
+  public selectedEstado: IAgencia = { id: 0, name: '', user: '' };
+  public atypes: IActivofijo[];
+  public obranches: IAgencia[];
+  public oestados: IEstado[];
   public store: any;
-
+  public formRegistry: FormGroup;
   public formShow: FormGroup;
   public listRegistriesOriginal: IRegistry[];
   public listRegistriesFiltered: IRegistry[];
@@ -43,21 +69,43 @@ export class ResumeComponent implements OnInit {
   public total: number;
   public totalDe:number;
   public page: number;
+  public locale: any;
   public itemsRegistries: number;
   url = '';
-
-  public atypes: IActivofijo[]
+  private basePath1 = '/registries';
+  public loadBranches:boolean;
+  public cargarActivosfijos: boolean;
   storageRef: any;
-
+  private basePath = '/backup';
+  file: File;
+  imagePost: AbstractControl;
+  public listaActivosfijos: IActivofijo[];
+  public listBranches: IAgencia[];
+  public listEstados:IEstado[];
+  public loadEstados:boolean;
+  
   constructor(
-
+    private renderer:Renderer2,
+    private afd: AngularFireDatabase,
     private formBuilder: FormBuilder,
     private rService: RegistryService,
     private aService: AssettypeService,
     private config: ConfigService,
     private modalService: NgbModal,
-    private storage: AngularFireStorage
+    private storage: AngularFireStorage,
+    
   ) {
+    this.loadEstados= false;
+    this.close = new EventEmitter<boolean>();
+    this.listaActivosfijos = [];
+    this.listBranches= [];
+    this.listEstados=[];
+    this.cargarActivosfijos = false;
+    this.loadBranches = false;
+    this.loadEstados = false;
+    // Obtengo el locale para los calendarios
+    this.locale = this.config.locale;
+    let disableBtn = false;
     this.listRegistriesOriginal = [];
     this.listRegistriesFiltered = [];
     this.showResume = false;
@@ -75,7 +123,11 @@ export class ResumeComponent implements OnInit {
 
 
     }
-
+   
+    qrcodescanned = '';
+    downloadableURL = '' ;
+    task: AngularFireUploadTask;
+    progressValue: Observable<number>;
     public convertToPDF() {
       var data = document.getElementById('tablaRegistros');
       
@@ -113,14 +165,14 @@ export class ResumeComponent implements OnInit {
             pdf.save( 'file.pdf');
    
  });
- 
 }
- 
+    }
+
   
-}  
+  
+
   ngOnInit() {
-
-
+    
     this.atypes = this.aService.getAtypes();
 
     // Obtengo los registros
@@ -140,7 +192,7 @@ export class ResumeComponent implements OnInit {
       console.error('Error al recoger los registros:' + error);
 
     })
-this.oestados=this.aService.getOestados();
+    this.oestados=this.aService.getOestados();
     this.obranches=this.aService.getObranches();
     // Si estoy editando
     if (this.registrySelected) {
@@ -210,7 +262,10 @@ this.oestados=this.aService.getOestados();
 
 
     };
-   
+    
+
+
+    
     // Obtengo los activos
     this.aService.getActivofijo().subscribe(listaActivosfijos => {
       this.listaActivosfijos= listaActivosfijos;
@@ -349,6 +404,9 @@ get estado(){
   }
   
 
+  
+      
+  
 
   /**
    * Completa los activos de los posts
@@ -371,20 +429,8 @@ get estado(){
       console.error('Error al recoger los activos fijos:' + error);
 
     })
-
-
   }
-
-
-
-
-
           // <<<<< Percentage of uploading is given
-
-
-
-
-
 
   /**
    * Obtenga la suma total de los registros
@@ -392,12 +438,12 @@ get estado(){
   sumTotal() {
     this.total = sumBy(this.listRegistriesFiltered, r => {
       // Convierto la cantidad a numero
-      let price = toNumber(r.price);
+      let precio = toNumber(r.precio);
       // Si es un gasto, multiplico por -1
       if (r.type === 'expense') {
-        price = price * 1;
+        precio = precio * 1;
       }
-      return price
+      return precio
     })
   }
   sumDeprec() {
@@ -412,20 +458,19 @@ get estado(){
     })
   }
 
-  get idActivofijo() {
-    return this.formShow.get('idActivofijo');
-  }
+  
   /**
    * Elimino un registro
    * @param registry Registro a eliminar
    */
-  /* removeRegistry(registry: Registry) {
+   removeRegistry(registry: Registry) {
 
     // Abro el modal de confirmacion
     this.modalService.open(this.modal_confirm_delete).result.then(result => {
       // Si dice que si
       if (result === 'yes') {
         // Elimino el registro
+        
         this.rService.removeRegistry(registry.id).then(() => {
           this.modalService.open(this.modal_success);
         }, error => {
@@ -435,8 +480,9 @@ get estado(){
       }
     })
 
-  } */
- errorMessage = "";
+  } 
+  
+  errorMessage = "";
   
   addBackup() {
 
@@ -506,7 +552,6 @@ addRegistry() {
   
    }
  }
-
   /**
    * Manda el registro a la cabecera para que lo abra
    * @param registry Registro a mandar
@@ -514,11 +559,12 @@ addRegistry() {
   openEditDetail(registry: Registry) {
     this.rService.selectRegistry(registry);
   }
- openAsignationDetail(registry: Registry) { 
+  openAsignationDetail(registry: Registry) { 
        
     this.modalService.open(this.modal_responsable);
    
   }
+
   /**
    * Devuelve el resultado del filtro
    * @param $event Lista de registros filtrados
@@ -557,3 +603,4 @@ addRegistry() {
 
  
   }
+
