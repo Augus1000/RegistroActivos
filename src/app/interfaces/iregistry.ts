@@ -29,5 +29,6 @@ export interface IRegistry {
     agencia:any,
     nombre: string,
     imagePost: any,
-    qrcode:any
+    qrcode:any,
+  estado:any
 }
