@@ -2,7 +2,7 @@ import { AuthService } from 'src/app/services/auth.service';
 import { IRegistry } from './../interfaces/iregistry';
 import { AngularFireDatabase } from '@angular/fire/database';
 import { Registry } from './../models/registry';
-import { Injectable } from '@angular/core';
+import { EventEmitter, Injectable, Input } from '@angular/core';
 import {convertSnaps} from './db-utils'
 import * as moment from 'moment'
 import { from, Observable, Subject } from 'rxjs';
@@ -14,22 +14,30 @@ import { environment } from 'src/environments/environment';
 import { OperationResponse } from '../models/response.model';
 import { Appointment } from '../models/appointment.model';
 import { HttpClient } from '@angular/common/http';
-
+import { auth } from 'firebase';
+import { cloneDeep, forEach, sumBy, toNumber, orderBy, find } from 'lodash-es';
+import { IAgencia } from 'src/app/interfaces/iagencia';
+import { AssettypeService } from './assettype.service';
 @Injectable({
   providedIn: 'root'
 })
 export class RegistryService {
-
+ 
 
   private registrySubject: Subject<Registry>;
   public currentRegistry: Observable<Registry>;
-
+  @Input() registrySelected: Registry;
+  @Input() listRegistries: Registry[];
+  public listRegistriesOriginal: IRegistry[];
+  public listRegistriesFiltered: IRegistry[];
   constructor(
     private http: HttpClient,
     private afd: AngularFireDatabase,
     private authService: AuthService,
-    private db:AngularFirestore
+    private db:AngularFirestore,
+    
   ) {
+
 
     // Creo el subject
     this.registrySubject = new Subject<Registry>();
@@ -44,6 +52,7 @@ export class RegistryService {
       .collection("registries")
       .add(data);
   }
+ 
   getAllUsers() {
     return this.db.collection("registries").snapshotChanges();
   }
@@ -54,7 +63,8 @@ export class RegistryService {
   selectRegistry(registry: Registry) {
     this.registrySubject.next(registry);
   }
-
+  
+  
   /**
    * Obtiene todos los registros del actual usuario
    */
@@ -65,14 +75,17 @@ export class RegistryService {
     return from (this.db.doc(`registries/${registries}`).update(changes));
     //update changes from notara que changes emitira una promise y lo convertira a un observable que emite errores y solo emitira un valor
   }
+  
+  
+  saveBackups(backup:string, changes: Partial<IRegistry>): Observable<any>{
+    return from (this.db.doc(`backup/${backup}`).update(changes));
+    //update changes from notara que changes emitira una promise y lo convertira a un observable que emite errores y solo emitira un valor
+  }
   /**
    * Añade un registro
    * @param registry Registro a añadir
    */
-  addRegistry(registry: Registry): Promise<boolean> {
-
-    // Devuelve una promesa
-    return new Promise((resolve, reject) => {
+  async addRegistry(registry: Registry) {
 
       try {
         // Obtengo la referencia de los registros
@@ -92,22 +105,55 @@ export class RegistryService {
         // Obtengo la referencia del registro mas su id
         let registryRefId = this.afd.database.ref('registries/' + registry.id);
 
-        // Seteo el valor
-        registryRefId.set(registry.getData());
+        await registryRefId.set(registry.getData());
 
         // Indico que todo se resolvio bien
-        resolve(true);
+
+        
 
       } catch (error) {
         // Hubo un error
-        reject('Error al añadir el registro');
+        console.log(error);
+        throw 'User access denied';
+       
       }
-
-
-    })
-
   }
 
+
+ async addBackup(backup: Registry) {
+
+     try {
+       // Obtengo la referencia de los registros
+       let registryRef = this.afd.database.ref('backup');
+       
+       // añado un nuevo registro
+       let newbackup = registryRef.push();
+
+       // Obtengo el id del nuevo registro
+       backup.id = newbackup.key;
+       // Añado elusuario logueado
+       backup.user = this.authService.currentUser();
+       // Formateo la fecha
+       backup.date = moment(backup.date).format('YYYY-MM-DD');
+
+       // Obtengo la referencia del registro mas su id
+       let registryRefId = this.afd.database.ref('backup/' + backup.id);
+
+       await registryRefId.set(backup.getData());
+
+       // Indico que todo se resolvio bien
+
+       
+
+     } catch (error) {
+       // Hubo un error
+       console.log(error);
+       throw 'User access denied';
+      
+     }
+    }
+  
+   
   /**
    * Edito un registro
    * @param registry registro a editar
