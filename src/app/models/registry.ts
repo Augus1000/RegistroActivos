@@ -223,7 +223,13 @@ set internalcode(value: any) {
 set agencia(value: any) {
     set(this, 'data.agencia', value)
 }
+get estado() {
+  return get(this, 'data.estado')
+}
 
+set estado(value: any) {
+  set(this, 'data.estado', value)
+}
     getData(){
         return get(this, 'data');
     }
